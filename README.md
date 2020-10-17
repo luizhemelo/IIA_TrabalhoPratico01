@@ -14,5 +14,5 @@ $ make
 ```
 Para rodas todos os testes de uma única vez:
 ```sh
-$ bash test.sh
+$ bash test_<nome_do_algoritmo>.sh
 ```
