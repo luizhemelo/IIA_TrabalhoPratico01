@@ -38,6 +38,7 @@ void DFS::receiveRoot () {
 
     // Adiciona o noh raiz a lista de explorados e de a serem verficados
     this->explored.push_back(this->root);
+    this->frontier.push_back(this->root);
 }
 
 
@@ -79,6 +80,7 @@ int DFS::search () {
         this->locations.pop_back();
         this->deleteTree();
         this->explored.clear();
+        this->frontier.clear();
         this->receiveRoot();
     }  // END WHILE
 

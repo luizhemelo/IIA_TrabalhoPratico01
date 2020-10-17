@@ -6,6 +6,7 @@
 struct DFS {
 	std::vector<std::vector<int>> locations;  // Localizacoes possiveis para inicio do AGV
 	std::vector<std::vector<int>> results;  // Resultados obtidos para cada uma das posicoes iniciais
+	std::list<Node*> frontier;  // Fila de execucao, que organiza as operacoes
 	std::list<Node*> explored;  // Lista de estados jah verificados
 
 	std::string source;  // Arquivo de entrada para a aplicacao
