@@ -1,19 +1,18 @@
-#ifndef BFS_H
-#define BFS_H
+#ifndef ASTAR_H
+#define ASTAR_H
 
 #include "../node/node.hpp"
 
-struct BFS {
+struct aStar {
 	std::vector<std::vector<int>> locations;  // Localizacoes possiveis para inicio do AGV
 	std::vector<std::vector<int>> results;  // Resultados obtidos para cada uma das posicoes iniciais
-	std::list<Node*> frontier;  // Fila de execucao, que organiza as operacoes
 	std::list<Node*> explored;  // Lista de estados jah verificados
 
 	std::string source;  // Arquivo de entrada para a aplicacao
-	Node* root;  // Node raiz da arvore de busca para o BFS
+	Node* root;  // Node raiz da arvore de busca para o aStar
 	int W;  // Numero maximo de movimentos possiveis
 	
-	BFS (std::string src);  // Inicia um nova dependencia para execucao do BFS - parametro: nome arquivo de entrada
+	aStar (std::string src);  // Inicia um nova dependencia para execucao do aStar - parametro: nome arquivo de entrada
 
 	void receiveRoot ();   // Recebe o estado inicial, que correspondera ao Node raiz
 	void deleteTree ();  // Deleta o Node raiz e toda a arvore por ele gerada

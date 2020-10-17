@@ -6,9 +6,9 @@
 #include "./node/node.hpp"
 
 #include "./algorithms/bfs.hpp"
-// #include "./algorithms/dfs.hpp"
-// #include "./algorithms/ids.hpp"
-// #include "./algorithms/aStar.hpp"
+#include "./algorithms/dfs.hpp"
+#include "./algorithms/ids.hpp"
+#include "./algorithms/astar.hpp"
 
 int main(int argc, char* argv[]) {
 	if (argc != 3) {
@@ -16,12 +16,9 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-	// Criacao do Node raiz para a criacao da arvore
-	Node *node = new Node(0);
-
 	// Identifica o algoritmo a ser utilizado e o executa
 	if ((std::string(argv[1])=="BFS") || (std::string(argv[1])=="bfs")) {
-		BFS *bfs = new BFS(node, argv[2]);
+		BFS *bfs = new BFS(argv[2]);
 
 		bfs->search();
 

@@ -1,137 +1,132 @@
 #include "node.hpp"
 
 
-Node::Node (int dep) {
-    i=0; j=0; loc=0;
-	n_children = 0;
-	depth = dep;
-    W=0;
+Node::Node (int _depth, int _i, int _j, int _loc, int _w) {
+    this->n_children = 0;
+    this->depth = _depth;
+    this->i=_i; this->j=_j;
+    this->loc = _loc;
+    this->w = _w;
 }
 
-// RETORNA: 0 nao eh estado final / 1 eh estados final / 2 eh ponto de localizacao
-int Node::checkState (int w) {
-    if (this->state[this->i][this->j]=='$') {  // Encontra um ponto de coleta
-        return 1;
+
+std::vector<std::vector<int>> Node::discoverLocations () {
+    int line=this->state.size(), column=this->state[0].size();
+    std::vector<std::vector<int>> locations;
+
+    // Identifica as possiveis posicoes para inicio do AGV
+    std::vector<int> vec2(2);
+    for (j=0 ; j<column ; j++) {
+        if (this->state[0][j]=='.' || this->state[0][j]=='#') {
+            vec2[0]=0; vec2[1]=j;
+            locations.push_back(vec2);
+        }
+        if (this->state[line-1][j]=='.' || this->state[line-1][j]=='#') {
+            vec2[0]=line-1; vec2[1]=j;
+            locations.push_back(vec2);
+        }
     }
-    else if (this->state[this->i][this->j]=='#') {  // Encontra um ponto de localizacao
-        W = w;
+    for (i=1 ; i<(line-1) ; i++) {
+        if (this->state[i][0]=='.' || this->state[i][0]=='#') {
+            vec2[0]=i; vec2[1]=0;
+            locations.push_back(vec2);
+        }
+        if (this->state[i][column-1]=='.' || this->state[i][column-1]=='#') {
+            vec2[0]=i; vec2[1]=column-1;
+            locations.push_back(vec2);
+        }
+    }
+
+    return locations;
+}
+
+
+void Node::showResult (std::vector<std::vector<int>> *results) {
+    int mov=99999999, ptr; 
+
+    for (int i=0; i<(*results).size() ; i++) {
+        if ((*results)[i][0] < mov) {
+            mov = (*results)[i][0];
+            ptr = i;
+        }
+    }
+
+    std::cout << (*results)[ptr][0] << " " << (*results)[ptr][1] << " " << "[";
+    std::cout << (*results)[ptr][2] << " , " << (*results)[ptr][3] << "]" << std::endl;
+}
+
+
+int Node::checkState (int W) {
+    if (this->state[this->i][this->j]=='#') {  // Encontra um ponto de localizacao
+        this->w = W;
         this->loc += 1;
         this->state[this->i][this->j] = 'X';  // Indica que a localizacao jah foi percorrida pelo AGV
         return 2;
     }
+    else if (this->state[this->i][this->j]=='$') {  // Encontra um ponto de coleta
+        return 1;
+    }
 
-    this->state[this->i][this->j] = 'X';
+    this->state[this->i][this->j] = 'X';  // Indica que a localizacao jah foi percorrida pelo AGV
     return 0;  // Nao encontra nenhum ponto de interesse
 }
 
 
-int Node::checkExplored (std::list<Node*> *explored) {
+int Node::checkExplored (int i, int j, int depth, std::list<Node*> *explored) {
     std::list<Node*>::iterator it;
-	for (it=(*explored).begin() ; it!=(*explored).end() ; it++) {
-		for (int i=0 ; i<this->state.size() ; i++) {
-			for (int j=0 ; j<this->state[0].size() ; j++) {
-				if (this->state[i][j] != (*it)->state[i][j]) {
-					goto diferent;
-				}
-			}
-		}
+    for (it=(*explored).begin() ; it!=(*explored).end() ; it++) {
+        if (i==(*it)->i && j==(*it)->j) {  // Se as posicoes sao iguais
+            if (depth >= (*it)->depth) {  // Se o numero de passos do novo estado eh igual ou superior
+                return 1;  // Caso os estados sejam iguais
+            }
+        }
+    }
 
-		return 1;
-		diferent: continue;
-	}
-
-    return 0;
+    return 0;  // Caso o estado nao tenha sido explorado
 }
 
 
-int Node::defineChildren (std::list<Node*> *explored, int w) {
-    // Checa se o AGV ainda pode fazer algum movimento antes de encontrar um ponto de localizacao
-    if (this->W == 0) {
-        return 0;
+int Node::defineChildren (std::list<Node*> *explored, int W) {
+    if (this->w < 0) {
+        return 0;  // Caso o AGV nao possa fazer mais nenhum movimento
     }
 
-	char ch;
-
-    // Analisando posicao ACIMA - linha
-    if (this->i-1>=0 && this->state[this->i-1][this->j]!='*' && this->state[this->i-1][this->j]!='X') {
-		Node* new_Node1 = new Node(this->depth+1);
-
-		new_Node1->children=this->children; new_Node1->i=this->i-1;
-		new_Node1->loc=this->loc; new_Node1->j=this->j;
-		new_Node1->state=this->state; new_Node1->W=this->W;
-		ch = new_Node1->state[this->i-1][this->j];
-		new_Node1->state[this->i-1][this->j] = 'X';
-
+    if (this->i-1>=0 && this->state[this->i-1][this->j]!='*' && this->state[this->i-1][this->j]!='X') {  // Analisando posicao ACIMA
 		// Verifica se o filho a ser adicionado ao atual nao eh igual a alguns dos explorados
-		if ( new_Node1->checkExplored(explored) == 0 ) {
-			new_Node1->state[this->i-1][this->j] = ch;
-			this->children.push_back(new_Node1);
+		if ( this->checkExplored(this->i-1, this->j, this->depth+1, explored) == 0 ) {
+			this->children.push_back(new Node(this->depth+1, this->i-1, this->j, this->loc, this->w-1));
+            this->children[this->children.size()-1]->state = this->state;
 			this->n_children += 1;
-			new_Node1 = NULL;
 		}
-		delete new_Node1;
-	}
-
-	// Analisando posicao ABAIXO - linha
-	if (this->i+1<this->state.size() && this->state[this->i+1][this->j]!='*' && this->state[this->i+1][this->j]!='X') {
-		Node* new_Node2 = new Node(this->depth+1);
-
-		new_Node2->children=this->children; new_Node2->i=this->i+1;
-		new_Node2->loc=this->loc; new_Node2->j=this->j;
-		new_Node2->state=this->state; new_Node2->W=this->W;
-		ch = new_Node2->state[this->i+1][this->j];
-		new_Node2->state[this->i+1][this->j] = 'X';
-		
-		// Verifica se o filho a ser adicionado ao atual nao eh igual a alguns dos explorado
-		if ( new_Node2->checkExplored(explored) == 0 ) {
-			new_Node2->state[this->i+1][this->j] = ch;
-			this->children.push_back(new_Node2);
-			this->n_children += 1;
-			new_Node2 = NULL;
-		}
-		delete new_Node2;
-	}
-
-	// Analisando posicao da DIREITA - coluna
-	if (this->j+1<this->state[0].size() && this->state[this->i][this->j+1]!='*' && this->state[this->i][this->j+1]!='X') {
-		Node* new_Node3 = new Node(this->depth+1);
-
-		new_Node3->children=this->children; new_Node3->i=this->i;
-		new_Node3->loc=this->loc; new_Node3->j=this->j+1;
-		new_Node3->state=this->state; new_Node3->W=this->W;
-		ch = new_Node3->state[this->i][this->j+1];
-		new_Node3->state[this->i][this->j+1] = 'X';
-
-		// Verifica se o filho a ser adicionado ao atual nao eh igual a alguns dos explorado
-		if ( new_Node3->checkExplored(explored) == 0 ) {
-			new_Node3->state[this->i][this->j+1] = ch;
-			this->children.push_back(new_Node3);
-			this->n_children += 1;
-			new_Node3 = NULL;
-		}
-		delete new_Node3;
-	}
-
-	// Analisando posicao na ESQUERDA - coluna
-	if (this->j-1>=0 && this->state[this->i][this->j-1]!='*' && this->state[this->i][this->j-1]!='X') {
-		Node* new_Node4 = new Node(this->depth+1);
-
-		new_Node4->children=this->children; new_Node4->i=this->i;
-		new_Node4->loc=this->loc; new_Node4->j=this->j-1;
-		new_Node4->state=this->state; new_Node4->W=this->W;
-		ch = new_Node4->state[this->i][this->j-1];
-		new_Node4->state[this->i][this->j-1] = 'X';
-		
-		// Verifica se o filho a ser adicionado ao atual nao eh igual a alguns dos explorado
-		if ( new_Node4->checkExplored(explored) == 0 ) {
-			new_Node4->state[this->i][this->j-1] = ch;
-			this->children.push_back(new_Node4);
-			this->n_children += 1;
-			new_Node4 = NULL;
-		}
-		delete new_Node4;
 	}
     
+    if (this->i+1<this->state.size() && this->state[this->i+1][this->j]!='*' && this->state[this->i+1][this->j]!='X') {  // Analisando posicao ABAIXO
+		// Verifica se o filho a ser adicionado ao atual nao eh igual a alguns dos explorados
+		if ( this->checkExplored(this->i+1, this->j, this->depth+1, explored) == 0 ) {
+			this->children.push_back(new Node(this->depth+1, this->i+1, this->j, this->loc, this->w-1));
+            this->children[this->children.size()-1]->state = this->state;
+			this->n_children += 1;
+		}
+	}
+    
+    if (this->j+1<this->state[0].size() && this->state[this->i][this->j+1]!='*' && this->state[this->i][this->j+1]!='X') {  // Analisando posicao DIREITA
+		// Verifica se o filho a ser adicionado ao atual nao eh igual a alguns dos explorados
+		if ( this->checkExplored(this->i, this->j+1, this->depth+1, explored) == 0 ) {
+			this->children.push_back(new Node(this->depth+1, this->i, this->j+1, this->loc, this->w-1));
+            this->children[this->children.size()-1]->state = this->state;
+			this->n_children += 1;
+		}
+	}
+    
+    if (this->j-1>=0 && this->state[this->i][this->j-1]!='*' && this->state[this->i][this->j-1]!='X') {   // Analisando posicao ESQUERDA
+		// Verifica se o filho a ser adicionado ao atual nao eh igual a alguns dos explorados
+		if ( this->checkExplored(this->i, this->j-1, this->depth+1, explored) == 0 ) {
+			this->children.push_back(new Node(this->depth+1, this->i, this->j-1, this->loc, this->w-1));
+            this->children[this->children.size()-1]->state = this->state;
+			this->n_children += 1;
+		}
+	}
+
     return 0;
 }
 
