@@ -56,7 +56,31 @@ void DFS::deleteTree () {
 
 
 int DFS::runDFS (Node* node) {
-    // IMPLEMENTACAO DO DFS
+    if (node->checkState(W) == 1) {  // Caso o estado atual seja o final
+        std::vector<int> result;
+        result.push_back(node->depth); result.push_back(node->loc);
+        result.push_back(this->root->i); result.push_back(this->root->j);
+        this->results.push_back(result); result.clear();
+        return 1;
+    }
+
+    // Define os filhos do no atual
+    node->defineChildren(&this->explored, this->W);
+
+    // Adiciona os filhos do Node atual nas listas
+    for (int i=0 ; i<(node->n_children) ; i++) {
+        this->frontier.push_front(node->children[i]);
+        this->explored.push_back(node->children[i]);
+    }
+
+    // Retira o estado analisado da lista fronteira
+    this->frontier.remove(node);
+
+    while (this->frontier.begin() != this->frontier.end()) { // BEGIN_WHILE
+        return this->runDFS(this->frontier.front());
+    }  // END_WHILE
+
+    return 0;
 }
 
 
@@ -74,9 +98,9 @@ int DFS::search () {
         this->root->j = this->locations[this->locations.size()-1][1];
 
         // IMPLEMENTACAO DO DFS
+        this->runDFS(this->root);
 
         // Preparacao do TAD para nova localizacao inicial
-        anotherInitialLocation:
         this->locations.pop_back();
         this->deleteTree();
         this->explored.clear();

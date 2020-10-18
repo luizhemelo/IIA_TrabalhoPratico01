@@ -70,7 +70,6 @@ int aStar::search () {
         // IMPLEMENTACAO DO aStar
 
         // Preparacao do TAD para nova localizacao inicial
-        anotherInitialLocation:
         this->locations.pop_back();
         this->deleteTree();
         this->explored.clear();
