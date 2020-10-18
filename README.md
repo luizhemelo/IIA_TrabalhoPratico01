@@ -7,12 +7,22 @@ Diretórios:
   - '_node_' - códigos da estrutura base da árvore de busca 
   - "_algorithms_' - códigos de todos os algoritmos requeridos pelo Trabalho
 
+Para executar qualquer código/comando, execute no diretório '_./src_'.
+
 Para compilar:
 
 ```sh
 $ make
 ```
-Para rodas todos os testes de uma única vez:
+Para rodar todos os inputs disponibilizados junto com o Trabalho de uma única vez:
 ```sh
-$ bash test_<nome_do_algoritmo>.sh
+$ bash test_bfs.sh
+$ bash test_dfs.sh
+$ bash test_ids.sh
+$ bash test_a_star.sh
+```
+
+Para executar um teste unitário com algum algoritmo específico:
+```sh
+$ ./algorithms/agv <nome_do_algortimo> <diretorio_do_input>
 ```
