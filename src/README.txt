@@ -20,4 +20,4 @@ Para compilar:
 $ make
 
 Para executar algum algortimo específico:
-$ ./algorithms/agv <nome_do_algortimo> <diretorio_do_input>
+$ ./busca.sh <nome_do_algortimo> <diretorio_do_input>
