@@ -4,9 +4,13 @@
 #include <iostream>
 
 #include <fstream>
+#include <chrono>
+#include <thread>
+#include <time.h>
 #include <string>
 #include <vector>
 #include <list>
+#include <map>
 
 struct Node {
 	std::vector< std::vector<char> > state;  // Matriz de representacao do estado do Node
@@ -17,6 +21,7 @@ struct Node {
     int i, j;  // Localizacao do AGV no estado representado
     int loc;  // Numero de vezes que o AGV passou em um ponto de localizacao
     int w;  // Numero de vezes que o AGV ainda pode andar sem necessitar de ponto de localizacao
+    int manDist;  // Distancia de Manhattan
 
     Node (int _depth=1, int _i=0, int _j=0, int _loc=0, int _w=0);  // Inicializa um novo Node
     std::vector<std::vector<int>> discoverLocations ();  // Identifica as localizacoes iniciais possiveis
@@ -24,6 +29,7 @@ struct Node {
 
 	int checkState (int W);  // Checa se o estado atual eh o estado final
 	int checkExplored (int i, int j, int steps, std::list<Node*> *explored);  // Checa se o no jah foi explorado
+    void manhattanDistance (int _i, int _j);  // Calcula a distancia de Manhattan
 	int defineChildren (std::list<Node*> *explored, int W);  // Define os Nodes filhos de em determinado Node atual
 	void deleteChildren ();  // Deleta todos os nos filhos
 };

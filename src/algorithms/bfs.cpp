@@ -82,7 +82,7 @@ int BFS::search () {
                 std::cout << std::endl;
             }
             std::cout << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(600));*/
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));*/
 
             // Checa se o estado atual eh o final
             if ((*it)->checkState(W) == 1) {

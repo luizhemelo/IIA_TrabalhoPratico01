@@ -86,6 +86,16 @@ int Node::checkExplored (int i, int j, int depth, std::list<Node*> *explored) {
 }
 
 
+void Node::manhattanDistance (int _i, int _j) {
+    int i = this->i - _i;
+    if (i<0) {i=i*(-1);}
+    int j = this->j - _j;
+    if (j<0) {j=j*(-1);}
+
+    this->manDist = i+j;
+}
+
+
 int Node::defineChildren (std::list<Node*> *explored, int W) {
     if (this->w < 0) {
         return 0;  // Caso o AGV nao possa fazer mais nenhum movimento

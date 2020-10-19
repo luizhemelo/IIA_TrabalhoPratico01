@@ -55,6 +55,10 @@ void IDS::deleteTree () {
 
 
 int IDS::runIDS (Node* node, int dep) {
+    if (node->depth > dep) {  // Caso a profundidade limite tenha sido alcancada
+        return 0;
+    }
+    
     if (node->checkState(W) == 1) {  // Caso o estado atual seja o final
         std::vector<int> result;
         result.push_back(node->depth); result.push_back(node->loc);
@@ -75,19 +79,19 @@ int IDS::runIDS (Node* node, int dep) {
     // Retira o estado analisado da lista fronteira
     this->frontier.remove(node);
 
-    while (this->frontier.begin() != this->frontier.end()) { // BEGIN_WHILE
+    while (this->frontier.begin() != this->frontier.end()) {
         return this->runIDS(this->frontier.front(), dep);
-    }  // END_WHILE
+    }
 
     return 0;
 }
 
 
 int IDS::search () {
-    int dep;
-    std::vector<int> result;
     this->receiveRoot();
+    std::vector<int> result;
     this->locations = this->root->discoverLocations();
+    int dep = this->root->state.size()*this->root->state[0].size();
     
     std::cout << this->source << std::endl;
 
@@ -98,14 +102,14 @@ int IDS::search () {
         this->root->j = this->locations[this->locations.size()-1][1];
 
         // IMPLEMENTACAO DO IDS
-        dep = this->root->state.size()*this->root->state[0].size();  // Representa todas as posicoes possiveis do estado
         for (int i=1 ; i<dep ; i++) {
-            if (this->runIDS(this->root, dep) == 1) {
-                break;
+            if (this->runIDS(this->root, i) == 1) {  // Caso o estado final seja encontrado
+                goto anotherInitialLocation;
             }
         }
 
         // Preparacao do TAD para nova localizacao inicial
+        anotherInitialLocation:
         this->locations.pop_back();
         this->deleteTree();
         this->explored.clear();

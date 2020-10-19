@@ -76,9 +76,9 @@ int DFS::runDFS (Node* node) {
     // Retira o estado analisado da lista fronteira
     this->frontier.remove(node);
 
-    while (this->frontier.begin() != this->frontier.end()) { // BEGIN_WHILE
+    while (this->frontier.begin() != this->frontier.end()) {
         return this->runDFS(this->frontier.front());
-    }  // END_WHILE
+    }
 
     return 0;
 }
